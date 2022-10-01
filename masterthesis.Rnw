@@ -1,4 +1,3 @@
-
 \documentclass[a4paper]{scrartcl}
        
 \usepackage[utf8]{inputenc}
@@ -16,6 +15,7 @@
 \parindent0pt
 
 \begin{document}
+
 
 \title{Einsatz der Regularisierungstechniken Boosting und Stabilitätsselektion in der Credibilität}
 \author{Serges Letsudem Wonanke}
