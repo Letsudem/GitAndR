@@ -1,0 +1,161 @@
+\documentclass[a4paper]{scrartcl}
+       
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel} 
+\usepackage{lmodern}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{amsmath,amssymb,amsthm,amsfonts,amsbsy,latexsym}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{textcomp}
+\lstset{breaklines=true}
+\geometry{top=2cm, bottom=2cm, left=1.5cm, right=1.5cm}
+\parindent0pt
+
+\begin{document}
+
+
+\title{Einsatz der Regularisierungstechniken Boosting und Stabilitätsselektion in der Credibilität}
+\author{Serges Letsudem Wonanke}
+\date{\today}
+
+\maketitle
+
+\tableofcontents 
+
+\ \\
+
+\listoffigures  
+                     
+
+\newpage
+
+% Diesen Chunk in Kombination mit \lstset{breaklines=true} (Zeile 13 in diesem Dokument)
+% ausfuehren, falls der R-Output in die Seitenraender ragt
+<<include=FALSE,echo=FALSE,results=FALSE>>=
+render_listings()
+@
+
+\section{Daten} \
+
+Bsp. mit verunreinigten Daten: \ \\
+
+<<>>=
+I<-rbinom(1000,1,0.95)
+Xid<-rnorm(1000)
+Xru<-rnorm(1000,5,1)
+@
+
+Realisationen aus $\mathcal{N}(0,1)$ und $\mathcal{N}(5,1)$.
+
+<<echo=FALSE>>=
+Xre<-I*Xid+(1-I)*Xru
+@
+
+\texttt{echo=FALSE} bewirkt, dass der $\mathsf{R}-$Code nicht im pdf abgebildet wird. \ \\
+
+<<echo=FALSE>>=
+summary(Xre)
+@
+
+\texttt{summary} fuer die idealen Daten: \ \\
+
+<<eval=FALSE>>=
+summary(Xid)
+x<-5
+@
+
+Mit \texttt{eval=FALSE} wird der $\mathsf{R}-$Code in dem Chunk nicht ausgefuehrt. \ \\
+
+<<>>=
+x+2
+@
+
+<<result='hide',echo=TRUE,eval=TRUE>>=
+summary(Xru)
+y<-5
+@
+
+Mit \texttt{results='hide'} wird (wegen \texttt{eval=TRUE}) zwar trotzdem der Code ausgefuehrt, aber das Ergebnis wird nicht ins pdf geschrieben. Der folgende Chunk zeigt aber, dass der Code intern ausgefuehrt wurde: \ \\
+
+<<>>=
+y+3
+@
+
+
+\section{Graphiken} \
+
+Achtung: Die Hoehen- und Breitenangaben in dem Chunk sind in inches bemessen. \ \\
+
+\begin{figure}[H]
+\begin{center}
+<<fig.width=5,fig.height=4>>=
+par(mfrow=c(1,2))
+boxplot(Xid,main='ideal')
+boxplot(Xre,main='real')
+@
+\end{center}
+\caption{Erstes Beispiel}
+\end{figure}
+
+
+
+\section{Tabellen} \
+
+<<results='asis'>>=
+require(xtable)
+x<-rbinom(100,3,0.6)
+y<-rpois(100,2)
+xtable(table(x,y))
+@
+
+\begin{center}
+<<results='asis'>>=
+kable(table(x,y))
+@    
+\end{center}
+
+Fuer Regressions-Output bietet sich \texttt{xtable} an: \ \\
+
+<<Regression1,results='asis'>>=
+lsfit<-lm(Petal.Width~Petal.Length,data=iris)
+xtable(summary(lsfit))
+@
+
+$\pi^2$ auf 4 Nachkommastellen gerundet: \Sexpr{round(pi^2,4)}. \ \\
+
+<<echo=FALSE>>=
+z<-rnorm(100)
+@
+
+Der Mittelwert der 100 Realisationen ist \Sexpr{mean(z)}.  \ \\
+
+
+Wichtig: Beim Erstellen der .tex-Datei aus der .Rnw-Datei werden saemtliche Chunks ausgefuehrt. Sofern ein Chunk computationell auswaendigen Coed enthaelt, der aber ausgewertet werden muss, sollte \texttt{cache=TRUE} gesetzt werden. Dann wird beim ersten Kompilieren der Chunk ausgefuehrt, aber die Ergebnisse in einem cache-Ordner (im Arbeitsverzeichnis) gespeichert und beim naechsten Kompilieren werden direkt die Ergebnisse ausgelesen, ohne den Chunk erneut auszufuehren. Achtung: Eine Aenderung in dem Chunk zerstoert den cache! \ \\
+
+Sollte cache nicht funktionieren, kann es helfen, den cache zu loeschen, der ueberschrieben worden waere. \ \\ 
+
+<<Bootstrap,cache=TRUE>>=
+## Genauigkeit der ML-Schaetzung 
+## mit Bootstrap pruefen
+set.seed(1)
+x<-rnorm(100)
+m<-seq(-2,2,by=0.025)
+likelihood<-numeric(length(m))
+Xb<-numeric(20000)
+for(k in 1:20000){
+	xs<-sample(x,replace=T)
+	for (i in 1:length(m)){
+		likelihood[i]<-prod(dnorm(xs,m[i],1))
+	}
+	Xb[k]<-which.max(likelihood)
+}
+Xbo<-sort(Xb)
+cat("MLE lies with a probability of 95% in the interval [",m[Xbo[500]],",",
+m[Xbo[19500]],"]\n")
+@
+
+
+\end{document}
