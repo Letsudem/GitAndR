@@ -186,8 +186,9 @@ hachemeister
 Der Datensatz \code{hachemeister} ist eine Matrix, die aus 5 Beobachtungen (Zeilen) und 25 Variablen (Spalten) besteht.
 Die erste Spalte enthält die Nummer des Staates oder Vertrags, die Spalten 2-13 enthalten die durchschnittlichen Schadenbeträge der Versicherung oder Schadensätze und die 14-25 Spalten enthalten die entsprechenden Anzahl von Ansprüchen oder Prämienvolumen.\ \\
 
+\pkg{Fragestellung:} Welche Modell ist für die Auswertung geeignet?
+
 \subsection{Explorative Datenanalyse}
-%Fragestellung: kann man den mittleren Schadensatz als Prämie festlegen?
 % Setting as in the papers Glaubwürdigkeit für Schadensätze and A course in creadibility theory and its Application
 Wir beginnen mit der Frage, ob es überhaupt eine statistische Zusammenhang zwischen Verträgen gibt. Dabei berechnen wir mit dem \pkg{R}-Befehl \code{cor} den empirischen Korrelationskoffizienten und veranschaulichen ihnen mit dem Befehl \code{pairs.} Wobei SS.Verti für Schadensätze des Vertrages $i$ steht, $i= 1,\dots, 5.$
 
@@ -229,7 +230,7 @@ xtable(corschaden)
 pairs(paar2, upper.panel = NULL)
 @
 \end{center}
-Tabelle \ref{tab:cor} zeigt, dass es global mehr schwachen Zusammenhängen gibt. Ein stärker Zusammenhang zwischen dem Vertrag $1$ und $3$ existiert, es liegt einen negativen Zusammenhang zwischen dem Vertrag $4$ und $5$ vor, alledings ist die Beziehung schwach mit ungefähr $r= -0.05$. Und das Streudiagramm-Matrix veranschulicht die oberen Aussagen. Wir wollen nun wissen, welches Modell geeignet für die Analyse ist. Im folgenden sei $X_{ij}$ und $w_{ij}$ ($i = 1, \dots, I$, $j = 1, \dots, J$) die beobachteten Schadensätze des Vertrags $i$ in der Periode $j$ beziehungsweise die Prämienvolumen, welches in der Periode $j$ dem Vertrag $i$ zugrunde liegt. Wir verwenden in dieser Analyse die Darstellung von \hyperref[Glaub]{Bühlmann and Straub (1970)} für die Schadensätze, Prämienvolumen und führen die Berechnungen analog durch.\\
+Tabelle \ref{tab:cor} zeigt, dass es global mehr schwachen Zusammenhängen gibt. Ein stärker Zusammenhang zwischen dem Vertrag $1$ und $3$ existiert, es liegt einen negativen Zusammenhang zwischen dem Vertrag $4$ und $5$ vor, alledings ist die Beziehung schwach mit ungefähr $r= -0.05$. Und das Streudiagramm-Matrix veranschulicht die oberen Aussagen. Wir wollen nun wissen, welches Modell geeignet für die Analyse ist.wir wollen uns nun mit \pkg{Fragestellung} ob man den mittleren Schadensatz als Prämie festlegen kann, beschäftigen. Im folgenden sei $X_{ij}$ und $w_{ij}$ ($i = 1, \dots, I$, $j = 1, \dots, J$) die beobachteten Schadensätze des Vertrags $i$ in der Periode $j$ beziehungsweise die Prämienvolumen, welches in der Periode $j$ dem Vertrag $i$ zugrunde liegt. Wir verwenden in dieser Analyse die Darstellung von \hyperref[Glaub]{Bühlmann and Straub (1970)} für die Schadensätze, Prämienvolumen und führen die Berechnungen analog durch.\\
 
 
 
@@ -322,9 +323,11 @@ abline(h= w/5, col = "blue")
 
 Aus der \hyperref[dataanalyse]{Abbildung 1} links lässt sich sagen, dass den mittleren Schadensatz dieses Portfolio als angemessen für die kollektive Prämie erweist, allerdings ist rechts zu beobachten, dass das Prämienvolumen im Staat 1 am höschsten ist mit $57,5\%$, gefolgt von Staat 5. Der Staat 4 hat mit $2,4\%$ nur einen kleinen Anteil des Prämienvolumens. Wegen dieser hohen Variabilität, haben wir mit einem \pkg{heterogenen Portefeuille} zu tun. In dieser Situation sollte das \pkg{Bühlmann-Straub-Modell} für die Tarifierung verwendet werden, um das sehr unterschiedliche Volumen zwischen den Staaten in der Rechnung zu berücksichtigen.
 
+\pkg{Fragestellung:} Gegeben unterschiedliche Gewichtung der Risiken, wie lösen wir das Prämienberechnungsproblem? 
+
+
 \section{Das Bühlmann-Straub-Modell}
 \label{sec:BS}
-% Fragestellung: Gegeben unterschiedliche Gewichtung der Risiken, wie lösen wir das Prämienberechnungsproblem
 
 % für die documentation - Bibiothek: 39-K2, 17-K5, 37-very important,38-K4 (particulary 4.8) und K8
 % Bevor wir anfangen, prüfen wir zuerst, ob die Modellannahmen gelten.
@@ -387,9 +390,9 @@ Damit sind $\widehat{\widehat{\mu_0}}$= \Sexpr{BS[[1]][[1]]} und die jeweilige n
  \end{center}
  \end{figure}
  
-Wir sehen eine große Unterschiede zwischen den Ergebnissen aus den Tabelle \ref{tab:ave} und \ref{tab:cre} für den Vertrag $4$. Die Prämie in diesem Vertrag wäre $1468$ anstatt $1865$. Das Bühlmann-Straub-Modell ermöglicht es daher, die minimale Rolle dieses Vertrages im Ergebnis des Portfolios zu erkennen. Aus diesem Grund wird bei der Verteilung der Prämien wenig Gewicht beigemessen. Alledings stellen wir durch die Zeitreiheanalyse, die wir in der Abbildung \ref{tab:zrana} zusammenfassen, fest, dass die durchschnittliche Schadenshöhe des Vertrages $1$ von einem Zeitraum zum nächsten steigt. Die Glaubwürdigkeitsprämie des Bühlmann-Straub-Modells liegt in etwa auf dem Niveau der Periode $t = 8$. Die zeigt sich hier zu niedrig zu sein. Um solche Fälle behandeln zu können, hat \hyperref[Glaub]{Hachemeister (1975)} sein Glaubwürdigkeitsmodell mit Regression vorgeschlagen. Die Verwendung eines solchen Modells ist besonders bei hohen Inflationsraten, wo die Homogenität in der Zeit der individuelle Prämie nicht mehr gilt.\\
+Wir sehen eine große Unterschiede zwischen den Ergebnissen aus den Tabelle \ref{tab:ave} und \ref{tab:cre} für den Vertrag $4$. Die Prämie in diesem Vertrag wäre $1468$ anstatt $1865$. Das Bühlmann-Straub-Modell ermöglicht es daher, die minimale Rolle dieses Vertrages im Ergebnis des Portfolios zu erkennen. Aus diesem Grund wird bei der Verteilung der Prämien wenig Gewicht beigemessen. Alledings stellen wir durch die Zeitreiheanalyse, die wir in der Abbildung \ref{tab:zrana} zusammenfassen, fest, dass die durchschnittliche Schadenshöhe des Vertrages $1$ von einem Zeitraum zum nächsten steigt. Die Glaubwürdigkeitsprämie des Bühlmann-Straub-Modells liegt in etwa auf dem Niveau der Periode $t = 8$. Die zeigt sich hier zu niedrig zu sein. Um solche Fälle behandeln zu können, hat \hyperref[Glaub]{Hachemeister (1975)} sein Glaubwürdigkeitsmodell mit Regression vorgeschlagen. Die Verwendung eines solchen Modells ist besonders bei hohen Inflationsraten, wo die Homogenitätsannahme in der Zeit der individuelle Prämie nicht mehr gilt.\\
 
-%%Fragestellung: ändert sich die Prämie mit der Zeit?
+\pkg{Fragestellung}: Wie verhählt sich die Prämie mit der Zeit?
 <<results='hide', echo=FALSE, eval=TRUE>>= 
 
 start.date<- c(1970, 3)
