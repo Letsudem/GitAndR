@@ -457,6 +457,7 @@ plot(t5[,2], main="Trend für den Vertrag 5", ylab="Trend", ylim= ylim)
 \subsection{Glaubwürdigkeitsmodell mit Regression}
 \subsection{Ridge Regression}
 \subsection{Lasso Regression}
+\section{Stabilitätsselektion}
 
 %\bibliography{actuar}
 \newpage
