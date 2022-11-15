@@ -1,0 +1,498 @@
+\documentclass[x11names,ngerman]{article}
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{hyperref}
+  \usepackage{amsmath,amsthm,amssymb}
+    \usepackage{thmtools}
+  \usepackage[round]{natbib}
+  \usepackage{babel}
+  \usepackage{xcolor}
+  \usepackage[scaled=0.9]{helvet}
+  \usepackage[sc]{mathpazo}
+  \usepackage[autolanguage]{numprint}
+  \usepackage[shortlabels]{enumitem}
+  \usepackage{framed}
+  \usepackage{float}
+  \usepackage{textcomp}
+  \usepackage{caption}
+  \usepackage{geometry}
+  \usepackage{booktabs}
+  \usepackage{multicol}
+  \usepackage{rotating, booktabs, siunitx}
+ %% \usepackage{floatrow}
+  \usepackage{adjustbox}
+  \usepackage{framed}
+  \usepackage{graphicx}
+  \usepackage{setspace}
+  \usepackage{eurosym}
+  \geometry{top=2cm, bottom=2cm, left=1.5cm, right=1.5cm}
+  \parindent0pt
+
+
+  \title{Einsatz der Regularisierungstechniken Boosting und Stabilitätsselektion in der Credibilität}
+  \author{Serges Letsudem Wonanke \\ Carl von Ossietzky Universität Oldenburg}
+  \date{}
+
+  %% Colors
+\definecolor{link}{rgb}{0,0.4,0.6}             % internal links
+\definecolor{url}{rgb}{0.6,0,0}                % external links
+\definecolor{citation}{rgb}{0,0.5,0}           % citations
+\definecolor{codebg}{named}{LightYellow1}      % R code background
+
+  %% Hyperlinks
+  \hypersetup{%
+    pdfauthor={Vincent Goulet},
+    colorlinks = {true},
+    linktocpage = {true},
+    urlcolor = {url},
+    linkcolor = {link},
+    citecolor = {citation},
+    pdfpagemode = {UseOutlines},
+    pdfstartview = {Fit},
+    bookmarksopen = {true},
+    bookmarksnumbered = {true},
+    bookmarksdepth = {subsubsection}}
+
+  %% Some new commands. Commands \E and \VAR redefined to fit within
+  %% the author's writing habits...
+  \renewcommand{\theenumi}{(\roman{enumi})}
+  \newcommand{\SH}{\multicolumn{1}{c}{$i=1$} & \multicolumn{1}{c}{$i=2$} & \multicolumn{1}{c}{$i=3$} & \multicolumn{1}{c}{$i=4$} & \multicolumn{1}{c}{$i=5$}} % subhead
+  \newcommand{\E}[1]{\mathrm{E}[ #1 ]}
+  \newcommand{\pkg}[1]{\textbf{#1}}
+  \newcommand{\code}[1]{\texttt{#1}}
+  \newcommand{\pt}{{\scriptscriptstyle \Sigma}}
+  \newcommand{\mc}[3]{\multicolumn{#1}{#2}{#3}}
+  %% Some usefull commands for Formating
+  \newlist{alphalist}{enumerate}{1}
+\setlist[alphalist,1]{label=\textbf{\alph*.}}
+\numberwithin{equation}{section}
+\DeclareMathOperator{\I}{\mathbb{I}}
+\DeclareMathOperator{\N}{\mathbb{N}}
+\DeclareMathOperator{\Z}{\mathbb{Z}}
+\DeclareMathOperator{\Q}{\mathbb{Q}}
+\DeclareMathOperator{\R}{\mathbb{R}}
+\DeclareMathOperator{\F}{\mathbb{F}}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\kernel}{ker}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\e}{e}
+\def\one{\mbox{1\hspace{-3.85pt}\fontsize{11}{14.4}\selectfont\textrm{1}}}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\EX}{\mathbb{E}}% expected value
+\DeclareMathOperator{\PX}{\mathbb{P}}% probability value
+\DeclareMathOperator{\QX}{\mathbb{Q}}% probability value
+  
+%%Some usefull commands for theore- Theorem-Umgebungen
+
+\declaretheorem[
+	name=Satz,
+	numberwithin=section
+	]{thm}
+\declaretheorem[
+	name=Lemma,
+	sibling=thm,
+	]{lem}
+\declaretheorem[
+	name=Proposition,
+	sibling=thm,
+	]{prop}
+\declaretheorem[
+	name=Korollar,
+	sibling=thm,
+	]{cor}
+\declaretheorem[
+    name=Annahme,
+    sibling=thm,
+    ]{ass}
+\declaretheorem[
+	name=Definition,
+	style=definition,
+	numbered=yes,
+	]{defin}
+\declaretheorem[
+	name=Bemerkung,
+	style=remark,
+	numbered=yes
+	]{rem}
+\declaretheorem[
+	name=Antwort,
+	style=remark,
+	numbered=yes
+	]{loesung}
+\declaretheorem[
+	name=Beispiel,
+	style=remark,
+	numbered=no
+	]{exam}
+\declaretheorem[
+				name=Beweis,
+				style=proof, 
+				numbered=no
+				]{preuve}
+%%
+
+  \bibliographystyle{plainnat}
+
+<<echo=FALSE>>=
+library(actuar)
+library(stats)
+library(xtable)
+options(width = 57, digits = 4)
+@
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents 
+
+\ \\
+
+\listoffigures  
+                     
+
+\newpage
+
+
+\section{Einführung}
+\label{sec:Einf}
+I will still insert it.
+
+
+\section{Hachemeister Datensatz}
+\label{sec:hachemeister}
+\subsection{Darstellung der analysierten Daten}
+Die Rohdaten für diese Arbeit wurde in der Datenhaltung von \hyperref[actuar_ser]{actuar (2022)} zur Verfügung gestellt. \hyperref[mat_hachemeister]{Hachemeister (1975)} schrieb, dass er die Daten vom Amt für Versicherungsdienstleistungen bekam. Die Analyse wird mit Funktionen aus den R-Paketen \code{actuar} durchgeführt.
+
+%- Kapter 4 A course in CT and APP 
+
+%%%Tidyverse: Sammlung von Paketen, die um das Konzept von aufgeraeumten Daten entwickelt wurden. 
+% Aufgeraeumte Daten (Tidy data) sind Daten, mit denen man einfach arbeiten kann. Sie lassen sich 
+%u.a.,leicht ordnen, filtern, auswählen, mutieren (mit dplyr), visualisieren (mit ggplot2 oder ggvis)
+%und modellieren (mit den mehrere Modellierungspaketen von R).
+
+%%%Actuar: Sammlung von versicherungsmathematischen Funktionen, wie zB: Credibility Models (cm) 
+%und Verteilungen mit schweren Rändern.cm-Funktion ermöglicht es ein Bayesianes Glaubwürdigkeitsmodell 
+%an Daten anzupassen. Ergebnisse werden in einem Objekt zurückgegeben, von dem aus verschiedene Operationen 
+%durchgeführt werden können und die Prämie mit der Predict-Funktion berechnen werden kann.
+
+%Einlesen von Daten in R
+<<echo=TRUE>>=
+data(hachemeister)
+hachemeister
+@
+
+Der Datensatz \code{hachemeister} ist eine Matrix, die aus 5 Beobachtungen (Zeilen) und 25 Variablen (Spalten) besteht.
+Die erste Spalte enthält die Nummer des Staates oder Vertrags, die Spalten 2-13 enthalten die durchschnittlichen Schadenbeträge der Versicherung oder Schadensätze und die 14-25 Spalten enthalten die entsprechenden Anzahl von Ansprüchen oder Prämienvolumen.\ \\
+
+\subsection{Explorative Datenanalyse}
+%Fragestellung: kann man den mittleren Schadensatz als Prämie festlegen?
+% Setting as in the papers Glaubwürdigkeit für Schadensätze and A course in creadibility theory and its Application
+Wir beginnen mit der Frage, ob es überhaupt eine statistische Zusammenhang zwischen Verträgen gibt. Dabei berechnen wir mit dem \pkg{R}-Befehl \code{cor} den empirischen Korrelationskoffizienten und veranschaulichen ihnen mit dem Befehl \code{pairs.} Wobei SS.Verti für Schadensätze des Vertrages $i$ steht, $i= 1,\dots, 5.$
+
+
+<<results='hide',echo=FALSE ,eval=TRUE>>=
+ratios <- hachemeister[, 2:13]
+weights <- hachemeister[, 14:25]
+paar2<-rbind(ratios[,1], ratios[,2],ratios[,3],ratios[,4],ratios[,5],ratios[,6],ratios[,7],ratios[,8],ratios[,9],ratios[,10],ratios[,11],ratios[,12])
+colnames(paar2)<- c("SS.Vert1","SS.Vert2","SS.Vert3","SS.Vert4","SS.Vert5")
+head(paar2)
+paar3<-rbind(weights[,1], weights[,2],weights[,3],weights[,4],weights[,5],weights[,6],weights[,7],weights[,8],weights[,9],weights[,10],weights[,11],weights[,12])
+colnames(paar3)<- c("VolPrämie.Vert1","VolPrämie.Vert2","VolPrämie.Vert3","VolPrämie.Vert4","VolPrämie.Vert5")
+head(paar3)
+@
+%just to generete the correlation matrix for the first time. I copied in latex and paste down.
+
+<<results='hide',echo=FALSE ,eval=TRUE>>= 
+corschaden<-cor(paar2, method = "pearson")
+xtable(corschaden)
+@
+
+\begin{center}
+\captionof{table}{Korrelationskoeffizienten zwinschen Verträgen zu den Schadensätzen}
+ \begin{tabular}{rrrrrr}
+   \hline
+    \label{tab:cor}
+ & SS.Vert1 & SS.Vert2 & SS.Vert3 & SS.Vert4 & SS.Vert5 \\ 
+   \hline
+ SS.Vert1 & 1.00 & 0.42 & 0.70 & 0.38 & 0.45 \\ 
+ SS.Vert2 & 0.42 & 1.00 & 0.58 & 0.08 & 0.13 \\
+ SS.Vert3 & 0.70 & 0.58 & 1.00 & 0.23 & 0.04 \\ 
+ SS.Vert4 & 0.38 & 0.08 & 0.23 & 1.00 & -0.05 \\ 
+ SS.Vert5 & 0.45 & 0.13 & 0.04 & -0.05 & 1.00 \\ 
+ \hline
+ \end{tabular}
+ \end{center}
+ \begin{center}
+<<echo=FALSE, fig.width=6,fig.height=5>>=
+pairs(paar2, upper.panel = NULL)
+@
+\end{center}
+Tabelle \ref{tab:cor} zeigt, dass es global mehr schwachen Zusammenhängen gibt. Ein stärker Zusammenhang zwischen dem Vertrag $1$ und $3$ existiert, es liegt einen negativen Zusammenhang zwischen dem Vertrag $4$ und $5$ vor, alledings ist die Beziehung schwach mit ungefähr $r= -0.05$. Und das Streudiagramm-Matrix veranschulicht die oberen Aussagen. Wir wollen nun wissen, welches Modell geeignet für die Analyse ist. Im folgenden sei $X_{ij}$ und $w_{ij}$ ($i = 1, \dots, I$, $j = 1, \dots, J$) die beobachteten Schadensätze des Vertrags $i$ in der Periode $j$ beziehungsweise die Prämienvolumen, welches in der Periode $j$ dem Vertrag $i$ zugrunde liegt. Wir verwenden in dieser Analyse die Darstellung von \hyperref[Glaub]{Bühlmann and Straub (1970)} für die Schadensätze, Prämienvolumen und führen die Berechnungen analog durch.\\
+
+
+
+\begin{table}[H]
+ \begin{center}
+  \setlength{\abovetopsep}{10pt}
+  \renewcommand{\arraystretch}{1.2}
+  \captionof{table}{Schadensätze und Prämienvolumen des Vertrags $i$ in der Periode $j$}
+    \begin{tabular}{*{13}{l}}
+      \toprule
+        {} & \multicolumn{5}{c}{$X_{ij}$} & \multicolumn{5}{c}{$w_{ij}$}\\
+            \cmidrule(lr){2-6}
+            \cmidrule(lr){7-11}
+            & \SH & \SH\\
+      \midrule
+      $j=1$ & 1738  & 1364  & 1759  & 1223  & 1456  & 7861 & 1622 & 1147 & 407 & 2902\\
+      $j=2$ & 1642  & 1408  & 1685  & 1146  & 1499  & 9251 & 1742 & 1357 & 396 & 3172\\
+      $j=3$ & 1794  & 1597  & 1479  & 1010  & 1609  & 8706 & 1523 & 1329 & 348 & 3046\\
+      $j=4$ & 2051  & 1444  & 1763  & 1257  & 1741  & 8575 & 1515 & 1204 & 341 & 3068\\
+      $j=5$ & 2079  & 1342  & 1674  & 1426  & 1482  & 7917 & 1622 & 998  & 315 & 2693\\
+      $j=6$ & 2234  & 1675  & 2103  & 1532  & 1572  & 8263 & 1602 & 1077 & 328 & 2910\\
+      $j=7$ & 2032  & 1470  & 1502  & 1953  & 1606  & 9456 & 1964 & 1277 & 352 & 3275\\
+      $j=8$ & 2035  & 1448  & 1622  & 1123  & 1735  & 8003 & 1515 & 1218 & 331 & 2697\\
+      $j=9$ & 2115  & 1464  & 1828  & 1343  & 1607  & 7365 & 1527 & 896  & 287 & 2663\\
+      $j=10$& 2262  & 1831  & 2155  & 1243  & 1573  & 7832 & 1748 & 1003 & 384 & 3017\\
+      $j=11$& 2267  & 1612  & 2233  & 1762  & 1613  & 7849 & 1654 & 1108 & 321 & 3242\\
+      $j=12$& 2517  & 1471  & 2059  & 1306  & 1690  & 9077 & 1861 & 1121 & 342 & 3425\\
+      \bottomrule
+    \end{tabular}
+    \end{center}
+\end{table}
+
+Wir berechnen für jeden Vertrag $i$ die Gesamtprämie $w_{i\bullet}=\sum_{j=1}^{12}w_{ij}$ und den mittleren Schadensatz
+$\check{X_{i}}= \sum_{j=1}^{12}\frac{w_{ij}}{w_{i\bullet}}X_{ij}$, sowie für das ganze Schadenexzedentenportefeuille das Bruttoprämienvolumen $w_{\bullet\bullet}=\sum_{i=1}^{5}w_{i\bullet}$ und den mittleren Schadensatz $\bar{X}=\sum_{i=1}^{5}\frac{w_{i\bullet}}{w_{\bullet\bullet}}\check{X_{i}}.$
+<<echo=FALSE>>=
+ratios <- hachemeister[, 2:13]
+weights <- hachemeister[, 14:25]
+wi <- rowSums(weights)                          
+Xibar <- rowSums(weights * ratios)/wi
+w <- sum(wi)
+Xbar<- sum(wi * Xibar/w)
+@
+
+Aus der oberen Tabelle folgt:
+
+\begin{multicols}{2}
+ \begin{center}
+ \captionof{table}{Schadensätze des Vertrags $i$ in der Periode $j$}
+     \label{tab:ave}
+    \begin{tabular}{lccccc}
+      \toprule
+      $X_{ij}$ & $i=1$ & $i=2$ & $i=3$ & $i=4$ & $i=5$ \\
+      \midrule
+      $\check{X_{i}}$& 2061 & 1511 & 1806 & 1353 & 1600  \\\midrule
+      $\bar{X}$  &      &      & 1865.404\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+\columnbreak
+ \begin{center}
+ \captionof{table}{Prämienvolumen des Vertrags $i$ in der Periode $j$}
+    \begin{tabular}{lccccc}
+      \toprule
+      $w_{ij}$ & $i=1$ & $i=2$ & $i=3$ & $i=4$ & $i=5$ \\
+      \midrule
+      $w_{i\bullet}$  & 100155 & 19895 & 13735 & 4152 & 36110\\\midrule
+      $w_{\bullet\bullet}$    &        &       &      174047\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{multicols}
+Als nächstes nutzen wir die grafische Darstellung der Daten, um die Auffälligkeiten zu veranschaulichen. 
+
+\begin{figure}[H]
+\label{dataanalyse}
+\begin{center}
+<<echo=FALSE, fig.width=8,fig.height=4>>=
+par(mfrow=c(1,2))
+hist(ratios, xlab= "Schadensatz", ylab="Häufigkeit", main = paste("Häufigkeit der Schadensätzen"))   
+abline(v = Xbar, col = "blue")
+plot(wi, pch = 19, cex = 1.2, col = "dark grey", xlab = "Staat", ylab = "Prämienvolumen",
+     main = paste( "Verteilung des Prämienvolumens"))
+abline(h= w/5, col = "blue")
+@
+\end{center}
+\caption{Die blue Line links gibt den mittleren Schadensatz des ganzen Portefeuilles ($\bar{X}= 1865,404$) an. Rechts gibt sie das mittlere Prämienvolumen ($\frac{w_{\bullet\bullet}}{5}= 34809.4$) an.}
+\end{figure}
+
+
+Aus der \hyperref[dataanalyse]{Abbildung 1} links lässt sich sagen, dass den mittleren Schadensatz dieses Portfolio als angemessen für die kollektive Prämie erweist, allerdings ist rechts zu beobachten, dass das Prämienvolumen im Staat 1 am höschsten ist mit $57,5\%$, gefolgt von Staat 5. Der Staat 4 hat mit $2,4\%$ nur einen kleinen Anteil des Prämienvolumens. Wegen dieser hohen Variabilität, haben wir mit einem \pkg{heterogenen Portefeuille} zu tun. In dieser Situation sollte das \pkg{Bühlmann-Straub-Modell} für die Tarifierung verwendet werden, um das sehr unterschiedliche Volumen zwischen den Staaten in der Rechnung zu berücksichtigen.
+
+\section{Das Bühlmann-Straub-Modell}
+\label{sec:BS}
+% Fragestellung: Gegeben unterschiedliche Gewichtung der Risiken, wie lösen wir das Prämienberechnungsproblem
+
+% für die documentation - Bibiothek: 39-K2, 17-K5, 37-very important,38-K4 (particulary 4.8) und K8
+% Bevor wir anfangen, prüfen wir zuerst, ob die Modellannahmen gelten.
+In diesem Abschnitt wird die beste lineare Approximation der Prämie gesucht. Das Modell ist verteilungsfrei und besteht aus zwei Voraussetzungen: eine über die Unabhägigkeit der Schadensätzen und eine andere über deren Lage-und Streuungsparameter. \hyperref[Glaub]{Bühlmann and Straub (1970)} diskutierten die bestimmte Modellannahmen über die Schadensätzen und \hyperref[Adistr]{Bühlmann (1964)} beschäftigte sich mit der Bestimmung des Erwartungswertes und der Varianz im allgemeinen verteillungsfreien Fall. Sofern nicht anders angegeben, entstammen alle Definitionen und Beweise zusätzlich zu den oben genannten Artikeln, dem Buch \hyperref[Acourse]{Bühlmann, H., and Gisler, A. (2006)} oder eigenen Überlegungen.\newline
+Das Bühlmann-Straub-Modell ist ein Zwei-Urnen-Modell. Aus der ersten Urne wird die Risikodisposition der $i$-ten Vertrag $\theta_i$ gezogen, welche die Realisierung einer nicht beobachtbaren Zufallsvariablen $\Theta_i$ ist. Aus der zweiten Urne, deren Inhalt von $\theta_i$ bestimmt wird, erhalten wir nun die Schadensätze und es folgt:
+\begin{ass}[\pkg{Unabhängigkeit der $X_{ij}$}] 
+Die Verträge ($\Theta_i$,~ ($X_{i1},~X_{i2}\dots, X_{iJ}$)) sind unabhängig. Die $\Theta_1, \dots,\Theta_I$ sind unabhängig und identisch verteilt. 
+\end{ass}
+\begin{ass}[ \pkg{Erwartungswert und Varianz der $X_{ij}$}] 
+Die Schadensätze $X_{ij}$ sind bedingt unabhängig, gegeben $\Theta_i$ mit
+\begin{align}
+\EX[X_{ij}\mid \Theta_i] = \mu(\Theta_i),
+\end{align}
+\begin{align}
+\Var[X_{ij}\mid \Theta_i] = \frac{\sigma^2(\Theta_i)}{w_{ij}}.
+\end{align}
+\end{ass}
+\begin{thm}[\pkg{Credibility-Schätzer}]
+Für den Datensatz in dieser Arbeit und unter den oberen Annahmen  ist den Credibility-Schätzer von $\mu(\Theta_i)$ im Bühlmann-Straub-Model gegeben durch.
+\begin{align}
+\widehat{\widehat{\mu{(\Theta_i)}}}^{BS}=\alpha_i X_i + (1 - \alpha_i)\widehat{\widehat{\mu_0}},
+\end{align}
+wobei
+\begin{align}
+\widehat{\widehat{\mu_0}}= \sum_{i=1}^{I}\frac{\alpha_{i}}{\alpha_{\bullet}}X_i,
+\end{align}
+\begin{align}
+\alpha_i = \frac{w_{i\bullet}}{w_{i\bullet} + \frac{s^2}{a^2}} \quad und \quad \alpha_{\bullet}=\sum_{i=1}^{I}\alpha_i.
+\end{align}
+\end{thm}
+
+Das Prämienberechnungsproblem besteht darin die Variabilität der Schadensätze innerhalb eines Vertrages $s^2$, die Variabilität der Schadensätze zwischen den Verträgen aus den Daten zu schätzen und den Pseudo-Schätzer $\widehat{\widehat{\mu_0}}$ zu bestimmen. Hier ist $X_i$ der normierte gewichtete Mittelwert der Schadenerfahrung des Individuums $i$. Dabei benutzen wir die  $\mathsf{R}-Funktion$ \code{bstraub} und erhalten Ergebnisse, die wir in Tabelle \ref{tab:cre} zusammenfassen.\ \\
+
+\begin{figure}[H]
+\begin{center}
+<<results='hide', echo=TRUE, eval=TRUE>>= 
+BS<- actuar:::bstraub(ratios, weights, method = c("unbiased","iterative"), maxit=100, echo = FALSE)
+
+## BS[[5]] for the credibility estimtors.
+@
+
+\end{center}
+\end{figure}
+
+Damit sind $\widehat{\widehat{\mu_0}}$= \Sexpr{BS[[1]][[1]]} und die jeweilige normierte gewichtete Mittelwert der Schadenerfahrung $X_i$ in der Tabelle \ref{tab:cre}\ \\
+
+\begin{figure}[H]
+ \begin{center}
+ \captionof{table}{Prämienvorschlag gegeben das Model}
+  \label{tab:cre}
+ \begin{tabular}{rrrrrr}
+   \hline
+              & i =1 & i =2 & i =3 & i =4 & i =5 \\ 
+   \hline
+ Durchschnittsprämie $\bar{X}$ & 1865 & 1865 & 1865 & 1865 & 1865 \\ 
+ Individuelle Prämie $X_i$ & 2061 & 1511 & 1806 & 1353 & 1600 \\
+ Credibility-Prämie $\widehat{\widehat{\mu{(\Theta_i)}}}^{BS}$\ & 2053 & 1529 & 1790 & 1468 & 1605 \\ 
+ \hline
+ \end{tabular}
+ \end{center}
+ \end{figure}
+ 
+Wir sehen eine große Unterschiede zwischen den Ergebnissen aus den Tabelle \ref{tab:ave} und \ref{tab:cre} für den Vertrag $4$. Die Prämie in diesem Vertrag wäre $1468$ anstatt $1865$. Das Bühlmann-Straub-Modell ermöglicht es daher, die minimale Rolle dieses Vertrages im Ergebnis des Portfolios zu erkennen. Aus diesem Grund wird bei der Verteilung der Prämien wenig Gewicht beigemessen. Alledings stellen wir durch die Zeitreiheanalyse, die wir in der Abbildung \ref{tab:zrana} zusammenfassen, fest, dass die durchschnittliche Schadenshöhe des Vertrages $1$ von einem Zeitraum zum nächsten steigt. Die Glaubwürdigkeitsprämie des Bühlmann-Straub-Modells liegt in etwa auf dem Niveau der Periode $t = 8$. Die zeigt sich hier zu niedrig zu sein. Um solche Fälle behandeln zu können, hat \hyperref[Glaub]{Hachemeister (1975)} sein Glaubwürdigkeitsmodell mit Regression vorgeschlagen. Die Verwendung eines solchen Modells ist besonders bei hohen Inflationsraten, wo die Homogenität in der Zeit der individuelle Prämie nicht mehr gilt.\\
+
+%%Fragestellung: ändert sich die Prämie mit der Zeit?
+<<results='hide', echo=FALSE, eval=TRUE>>= 
+
+start.date<- c(1970, 3)
+end.date <- c(1973, 2)
+vertraege <- rbind(as.vector(ratios[1,]),as.vector(ratios[2,]),as.vector(ratios[3,]),
+               as.vector(ratios[4,]), as.vector(ratios[5,]))
+
+myserie1 <- ts(data = as.vector(ratios[1,]),
+          start = start.date,
+          end = end.date , frequency = 4)
+Trendcheck1<- stl(myserie1, s.window = "periodic")
+##plot(Trendcheck)
+t1 <-Trendcheck1$time.series
+t1
+t1[,2];
+Trendcheck1$time.series[,2];
+
+myserie2 <- ts(data = as.vector(ratios[2,]),
+              start = start.date,
+              end = end.date , frequency = 4)
+Trendcheck2<- stl(myserie2, s.window = "periodic")
+##plot(Trendcheck)
+t2 <-Trendcheck2$time.series
+t2[,2];
+myserie3 <- ts(data = as.vector(ratios[3,]),
+               start = start.date,
+               end = end.date , frequency = 4)
+Trendcheck3<- stl(myserie3, s.window = "periodic")
+##plot(Trendcheck)
+t3 <-Trendcheck3$time.series
+t3[,2];
+myserie4 <- ts(data = as.vector(ratios[4,]),
+               start = start.date,
+               end = end.date , frequency = 4)
+Trendcheck4<- stl(myserie4, s.window = "periodic")
+##plot(Trendcheck)
+t4 <-Trendcheck4$time.series
+t4[,2];
+myserie5 <- ts(data = as.vector(ratios[5,]),
+               start = start.date,
+               end = end.date , frequency = 4)
+Trendcheck5<- stl(myserie5, s.window = "periodic")
+##plot(Trendcheck)
+t5 <-Trendcheck5$time.series
+t5[,2];
+@
+
+\begin{figure}[H]
+\begin{center}
+ \caption{Zeitreihenplot für die Hachemeister-Daten zur Messung der vierteljährlichen Entwicklung von 1970-1973.}
+ \label{tab:zrana}
+<<echo=FALSE, eval=TRUE>>= 
+par(mfrow=c(3,2))
+ylim <- c(min(ratios), max(ratios))
+plot(t1[,2], main="Trend für den Vertrag 1", ylab="Trend", ylim= ylim)
+plot(t2[,2], main="Trend für den Vertrag 2", ylab="Trend", ylim= ylim)
+plot(t3[,2], main="Trend für den Vertrag 3", ylab="Trend", ylim= ylim)
+plot(t4[,2], main="Trend für den Vertrag 4", ylab="Trend", ylim= ylim)
+plot(t5[,2], main="Trend für den Vertrag 5", ylab="Trend", ylim= ylim)
+@
+\end{center}
+\end{figure}
+
+\section{Regularisierungstechniken}
+\subsection{Glaubwürdigkeitsmodell mit Regression}
+\subsection{Ridge Regression}
+\subsection{Lasso Regression}
+
+%\bibliography{actuar}
+\newpage
+\section*{Literaturverzeichnis}
+
+[1] Charles A. Hachemeister, (1975): Credibility for Regression Models with Application to Trend, \textit{Proceedings of the Berkeley actuarial research conference on credibility} \textit{Academic Press},
+\label{mat_hachemeister}, \textit{New York}, 129-163.
+
+\bigskip
+[2] Goulet, V., Dutang, C., Pigean, M. (2022): actuar: \label{actuar_ser}\textit{Actuarial Function and Heavy Tailed Distributions}. https://CRAN.R-project.org/package=actuar
+\ \ \ \ \ \
+
+\bigskip
+[3] Bühlmann, H. and Straub, E. (1970): Glaubwürdigkeit für Schadensätze, \label{Glaub}\textit{Bulletin of the Swiss Association of Actuaries}, 70(1), 111-133.
+\ \ \ \ \ \ 
+
+\bigskip
+[4] Bühlmann, H., and Gisler, A. (2006): A course in Credibility Theory and its Application.\label{Acourse} \textit{Springer Sciences } and \textit{Business Media}.
+\ \ \ \ \ \
+
+
+\bigskip
+[5] Bühlmann, H. (1964): A Distribution Free Method for General Risk Problems,\label{Adistr}, \textit{ASTIN Bulletin}
+\ \ \ \ \ \ \
+
+
+\bigskip
+[6] Korn, R., Korn, E., and Kroisandt, G. (2010): Monte Carlo Methods and Models in Finan-
+
+\newpage
+\pagestyle{empty}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: noweb
+%%% TeX-master: t
+%%% coding: utf-8
+%%% End:
